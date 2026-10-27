@@ -1,4 +1,4 @@
-package io.github.icarocavalari.next_api;
+package io.github.icarocavalari.nextapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

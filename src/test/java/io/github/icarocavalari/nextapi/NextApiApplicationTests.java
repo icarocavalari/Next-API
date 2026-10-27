@@ -1,4 +1,4 @@
-package io.github.icarocavalari.next_api;
+package io.github.icarocavalari.nextapi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

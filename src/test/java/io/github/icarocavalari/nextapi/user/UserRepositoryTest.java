@@ -41,10 +41,10 @@ public class UserRepositoryTest {
 
     @Test
     void shouldNotAcceptSavingUserWithEmailAlreadyTaken() {
-        User first = saveAndFlushUser("test@email.com", "nickname");
+        saveAndFlushUser("test@email.com", "nickname");
 
         assertThatThrownBy(() -> {
-            User second = saveAndFlushUser("test@email.com", "different");
+            saveAndFlushUser("test@email.com", "different");
         }).isInstanceOf(DataIntegrityViolationException.class)
                 .hasMessageContaining("uk_users_email");
     }
@@ -78,10 +78,11 @@ public class UserRepositoryTest {
 
         UserIdentity userIdentity = testEntityManager.persistAndFlush(new UserIdentity(savedUser, AuthProvider.GOOGLE, "123456789"));
         RefreshToken refreshToken = testEntityManager.persistAndFlush(new RefreshToken("123456789", savedUser, Instant.now().plus(Duration.ofDays(7))));
-        testEntityManager.clear();
 
         Long idUserIdentity = userIdentity.getId();
         Long idRefreshToken = refreshToken.getId();
+
+        testEntityManager.clear();
 
         assertThat(testEntityManager.find(UserIdentity.class, idUserIdentity)).isNotNull();
         assertThat(testEntityManager.find(RefreshToken.class, idRefreshToken)).isNotNull();

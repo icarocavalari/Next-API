@@ -5,6 +5,8 @@ import io.github.icarocavalari.nextapi.auth.NicknameAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -57,6 +59,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
         log.error("Unexpected error", e);
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+    }
+
+    @ExceptionHandler
+    public ProblemDetail handleAuthentication(AuthenticationException e) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Email/Password is incorrect.");
+        return detail;
     }
 
     @ExceptionHandler

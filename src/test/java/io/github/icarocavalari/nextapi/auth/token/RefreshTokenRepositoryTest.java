@@ -1,4 +1,4 @@
-package io.github.icarocavalari.nextapi.auth;
+package io.github.icarocavalari.nextapi.auth.token;
 
 import io.github.icarocavalari.nextapi.TestcontainersConfiguration;
 import io.github.icarocavalari.nextapi.user.RoleName;

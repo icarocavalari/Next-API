@@ -1,4 +1,4 @@
-package io.github.icarocavalari.nextapi.auth;
+package io.github.icarocavalari.nextapi.auth.identity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

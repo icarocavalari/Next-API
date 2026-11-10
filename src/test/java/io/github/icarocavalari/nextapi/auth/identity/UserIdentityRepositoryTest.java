@@ -1,4 +1,4 @@
-package io.github.icarocavalari.nextapi.auth;
+package io.github.icarocavalari.nextapi.auth.identity;
 
 import io.github.icarocavalari.nextapi.TestcontainersConfiguration;
 import io.github.icarocavalari.nextapi.user.RoleName;
@@ -12,14 +12,15 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import static io.github.icarocavalari.nextapi.auth.AuthProvider.GOOGLE;
-import static io.github.icarocavalari.nextapi.auth.AuthProvider.STEAM;
+import static io.github.icarocavalari.nextapi.auth.identity.AuthProvider.GOOGLE;
+import static io.github.icarocavalari.nextapi.auth.identity.AuthProvider.STEAM;
 import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
 @Import(TestcontainersConfiguration.class)
 public class UserIdentityRepositoryTest {
-    @Autowired UserIdentityRepository userIdentityRepo;
+    @Autowired
+    UserIdentityRepository userIdentityRepo;
 
     @Autowired UserRepository userRepo;
 

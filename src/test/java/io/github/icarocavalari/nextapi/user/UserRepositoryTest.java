@@ -1,9 +1,9 @@
 package io.github.icarocavalari.nextapi.user;
 
 import io.github.icarocavalari.nextapi.TestcontainersConfiguration;
-import io.github.icarocavalari.nextapi.auth.AuthProvider;
-import io.github.icarocavalari.nextapi.auth.RefreshToken;
-import io.github.icarocavalari.nextapi.auth.UserIdentity;
+import io.github.icarocavalari.nextapi.auth.identity.AuthProvider;
+import io.github.icarocavalari.nextapi.auth.token.RefreshToken;
+import io.github.icarocavalari.nextapi.auth.identity.UserIdentity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;

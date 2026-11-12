@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -34,6 +36,12 @@ public class AuthControllerTest {
                 "password": "joaozinho123",
                 "nickname": "joaozinho",
                 "age": 15
+            }""";
+
+    private final String JSON_LOGIN_REQUEST = """
+            {
+                "email": "joaozinho@gmail.com",
+                "password": "joaozinho123"
             }""";
 
     @Test
@@ -122,4 +130,47 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.detail").value("An unexpected error occurred"));
     }
 
+    @Test
+    void shouldReturnOkWhenLoggingUserCorrectly() throws Exception {
+        LoginRequest loginRequest = new LoginRequest("joaozinho@gmail.com", "joaozinho123");
+
+        when(authService.login(loginRequest)).thenReturn(
+                new UserResponse(15L, "joaozinho@gmail.com", "joaozinho", 15));
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(APPLICATION_JSON)
+                        .content(JSON_LOGIN_REQUEST))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("joaozinho@gmail.com"))
+                .andExpect(jsonPath("$.password").doesNotExist())
+                .andExpect(jsonPath("$.id").value(15L))
+                .andExpect(jsonPath("$.nickname").value("joaozinho"))
+                .andExpect(jsonPath("$.age").value(15));
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenUserWasNotAuthenticated() throws Exception {
+        when(authService.login(any())).thenThrow(new BadCredentialsException("Bad credentials"));
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(APPLICATION_JSON)
+                        .content(JSON_LOGIN_REQUEST))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.detail").value("Email/Password is incorrect."));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenFieldIsBlankInRequestBody() throws Exception {
+        mockMvc.perform(post("/auth/login")
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "email": "",
+                                    "password": "joaozinho123"
+                                }"""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.email").exists());
+
+        verify(authService, never()).login(any());
+    }
 }

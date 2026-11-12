@@ -17,6 +17,10 @@ public class Role {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private RoleName name;
 
+    public Role(RoleName roleName) {
+        this.name = roleName;
+    }
+
     protected Role() {
     }
 

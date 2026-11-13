@@ -1,5 +1,6 @@
 package io.github.icarocavalari.nextapi.config;
 
+import io.github.icarocavalari.nextapi.auth.UnauthorizedEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.file.AccessDeniedException;
 
@@ -23,7 +25,8 @@ import java.nio.file.AccessDeniedException;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain (HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain (HttpSecurity httpSecurity,
+                                                    UnauthorizedEntryPoint unauthorizedEntryPoint) throws Exception {
 
         httpSecurity
                 .httpBasic(http -> http.disable())
@@ -37,7 +40,7 @@ public class SecurityConfig {
                         .anyRequest()
                         .authenticated())
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+                        .authenticationEntryPoint(unauthorizedEntryPoint));
 
         return httpSecurity.build();
     }
@@ -48,5 +51,10 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public UnauthorizedEntryPoint unauthorizedEntryPoint(JsonMapper jsonMapper) {
+        return new UnauthorizedEntryPoint(jsonMapper);
     }
 }

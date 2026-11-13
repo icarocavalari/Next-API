@@ -5,3 +5,10 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+  config:
+    import: optional:file:.env[.properties]
+
+jwt:
+  secret: ${JWT_SECRET_KEY:}
+  issuer: next-api
+  expiration: 15m

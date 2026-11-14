@@ -1,5 +1,6 @@
 package io.github.icarocavalari.nextapi.auth;
 
+import io.github.icarocavalari.nextapi.auth.token.TokenResponse;
 import io.github.icarocavalari.nextapi.user.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+    public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
     }
 }

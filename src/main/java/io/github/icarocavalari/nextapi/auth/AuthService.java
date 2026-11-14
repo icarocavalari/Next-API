@@ -1,13 +1,16 @@
 package io.github.icarocavalari.nextapi.auth;
 
+import io.github.icarocavalari.nextapi.auth.token.JwtAccessTokenService;
+import io.github.icarocavalari.nextapi.auth.token.TokenResponse;
 import io.github.icarocavalari.nextapi.user.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.Locale;
 
 
@@ -17,16 +20,19 @@ public class AuthService {
 
     private final RoleRepository roleRepo;
 
+    private final JwtAccessTokenService jwtAccessTokenService;
+
     private final PasswordEncoder passwordEncoder;
 
     private final AuthenticationManager authenticationManager;
 
     public AuthService(UserRepository userRepo, RoleRepository roleRepo, PasswordEncoder passwordEncoder,
-                       AuthenticationManager authenticationManager) {
+                       AuthenticationManager authenticationManager, JwtAccessTokenService jwtAccessTokenService) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.jwtAccessTokenService = jwtAccessTokenService;
     }
 
     @Transactional
@@ -54,15 +60,19 @@ public class AuthService {
         return UserResponse.from(savedUser);
     }
 
-    public UserResponse login(LoginRequest loginRequest) {
+    public TokenResponse login(LoginRequest loginRequest) {
         String normalizedEmail = normalizeEmail(loginRequest.email());
 
         authenticationManager.authenticate(UsernamePasswordAuthenticationToken
                         .unauthenticated(normalizedEmail, loginRequest.password()));
 
-        User user = userRepo.findByEmail(normalizedEmail).orElseThrow();
+        User user = userRepo.findByEmail(normalizedEmail).orElseThrow(() ->
+                new IllegalStateException("Could not find user by the email"));
 
-        return UserResponse.from(user);
+        Jwt jwt = jwtAccessTokenService.generateToken(user.getId(), user.getRoles());
+        long expiresIn = Duration.between(jwt.getIssuedAt(), jwt.getExpiresAt()).getSeconds();
+
+        return TokenResponse.bearer(jwt.getTokenValue(), expiresIn);
     }
 
     private String normalizeEmail(String email) {

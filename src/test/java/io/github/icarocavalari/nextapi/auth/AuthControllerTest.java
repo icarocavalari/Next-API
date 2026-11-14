@@ -1,5 +1,6 @@
 package io.github.icarocavalari.nextapi.auth;
 
+import io.github.icarocavalari.nextapi.auth.token.TokenResponse;
 import io.github.icarocavalari.nextapi.config.SecurityConfig;
 import io.github.icarocavalari.nextapi.user.UserResponse;
 import org.junit.jupiter.api.Test;
@@ -134,17 +135,15 @@ public class AuthControllerTest {
         LoginRequest loginRequest = new LoginRequest("joaozinho@gmail.com", "joaozinho123");
 
         when(authService.login(loginRequest)).thenReturn(
-                new UserResponse(15L, "joaozinho@gmail.com", "joaozinho", 15));
+                new TokenResponse("somerandomtokenhere", "Bearer", 900));
 
         mockMvc.perform(post("/auth/login")
                         .contentType(APPLICATION_JSON)
                         .content(JSON_LOGIN_REQUEST))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("joaozinho@gmail.com"))
-                .andExpect(jsonPath("$.password").doesNotExist())
-                .andExpect(jsonPath("$.id").value(15L))
-                .andExpect(jsonPath("$.nickname").value("joaozinho"))
-                .andExpect(jsonPath("$.age").value(15));
+                .andExpect(jsonPath("$.accessToken").value("somerandomtokenhere"))
+                .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.expiresIn").value(900));
     }
 
     @Test

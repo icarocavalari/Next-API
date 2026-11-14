@@ -15,7 +15,6 @@ import java.util.Set;
 public class JwtAccessTokenService {
 
     public static final String ROLES_CLAIM = "roles";
-
     private final JwtEncoder encoder;
     private final JwtProperties jwtProperties;
     private final Clock clock;
@@ -26,8 +25,9 @@ public class JwtAccessTokenService {
         this.encoder = encoder;
     }
 
-    public String generateToken(Long id, Set<Role> roles) {
+    public Jwt generateToken(Long id, Set<Role> roles) {
         Instant now = clock.instant();
+        Instant expiresAt = now.plus(jwtProperties.expiration());
 
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                 .subject(id.toString())
@@ -37,7 +37,7 @@ public class JwtAccessTokenService {
                         .toList())
                 .issuer(jwtProperties.issuer())
                 .issuedAt(now)
-                .expiresAt(now.plus(jwtProperties.expiration()))
+                .expiresAt(expiresAt)
                 .build();
 
         JwsHeader header = JwsHeader
@@ -46,6 +46,6 @@ public class JwtAccessTokenService {
 
         JwtEncoderParameters encoderParameters = JwtEncoderParameters.from(header, claimsSet);
 
-        return encoder.encode(encoderParameters).getTokenValue();
+        return encoder.encode(encoderParameters);
     }
 }

@@ -5,12 +5,15 @@ import io.github.icarocavalari.nextapi.config.SecurityConfig;
 import io.github.icarocavalari.nextapi.user.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -21,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
-@ExtendWith(MockitoExtension.class)
 @Import(SecurityConfig.class)
 public class AuthControllerTest {
     @Autowired
@@ -30,7 +32,13 @@ public class AuthControllerTest {
     @MockitoBean
     AuthService authService;
 
-    private final String JSON_REGISTER_REQUEST = """
+    @MockitoBean
+    JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    JwtAuthenticationConverter jwtAuthenticationConverter;
+
+    private static final String JSON_REGISTER_REQUEST = """
             {
                 "email": "joaozinho@gmail.com",
                 "password": "joaozinho123",
@@ -38,7 +46,7 @@ public class AuthControllerTest {
                 "age": 15
             }""";
 
-    private final String JSON_LOGIN_REQUEST = """
+    private static final String JSON_LOGIN_REQUEST = """
             {
                 "email": "joaozinho@gmail.com",
                 "password": "joaozinho123"

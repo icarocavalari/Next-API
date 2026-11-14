@@ -3,30 +3,23 @@ package io.github.icarocavalari.nextapi.config;
 import io.github.icarocavalari.nextapi.auth.UnauthorizedEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolderThreadLocalAccessor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import tools.jackson.databind.json.JsonMapper;
-
-import java.nio.file.AccessDeniedException;
 
 @Configuration
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain (HttpSecurity httpSecurity,
-                                                    UnauthorizedEntryPoint unauthorizedEntryPoint) throws Exception {
+                                                    UnauthorizedEntryPoint unauthorizedEntryPoint,
+                                                    JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
 
         httpSecurity
                 .httpBasic(http -> http.disable())
@@ -34,6 +27,10 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter))
+                        .authenticationEntryPoint(unauthorizedEntryPoint))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**", "/error")
                         .permitAll()

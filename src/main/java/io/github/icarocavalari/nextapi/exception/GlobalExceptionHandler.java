@@ -2,7 +2,9 @@ package io.github.icarocavalari.nextapi.exception;
 
 import io.github.icarocavalari.nextapi.auth.EmailAlreadyExistsException;
 import io.github.icarocavalari.nextapi.auth.NicknameAlreadyExistsException;
+import io.github.icarocavalari.nextapi.user.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.parsing.Problem;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -30,6 +32,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     public ProblemDetail handleNicknameAlreadyExists(NicknameAlreadyExistsException e) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+        return detail;
+    }
+
+    @ExceptionHandler
+    public ProblemDetail handleUserNotFound(UserNotFoundException e) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
         return detail;
     }
 
